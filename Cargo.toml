@@ -1,0 +1,21 @@
+[package]
+name = "riirando"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+crossterm = "0.25"
+rand = "0.8"
+thiserror = "1"
+
+[dependencies.async-compression]
+version = "0.3"
+features = ["tokio", "zlib"]
+
+[dependencies.tokio]
+version = "1"
+features = ["io-std", "io-util"]
+
+[dependencies.wheel]
+git = "https://github.com/fenhl/wheel"
+branch = "main"
