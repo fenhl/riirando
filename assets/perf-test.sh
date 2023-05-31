@@ -1,0 +1,1 @@
+echo '{"rom": "/home/fenhl/games/zelda/oot/oot-ntscu-1.0.z64", "output_dir": "/home/fenhl/games/zelda/oot", "enable_distribution_file": false, "create_spoiler": true, "create_cosmetics_log": false, "create_patch_file": false, "create_compressed_rom": false, "world_count": 1}' | perf stat -e instructions python3 OoTRandomizer.py --settings=-

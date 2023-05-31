@@ -3,8 +3,13 @@ name = "riirando"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+lto = true
+strip = true
+
 [dependencies]
 crossterm = "0.25"
+itertools = "0.10"
 rand = "0.8"
 thiserror = "1"
 
