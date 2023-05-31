@@ -215,7 +215,7 @@ pub(crate) fn patch_rom(base_rom: &[u8]) -> Patch<'_> {
     for (bytes_diff, write_address) in binary_patches {
         // unlike in the Python randomizer, these files are already decompressed
         let original_bytes = &base_rom[write_address..write_address + bytes_diff.len()];
-        let new_bytes = original_bytes.iter().zip(bytes_diff).map(|(original_byte, diff_byte)| original_byte ^ diff_byte).collect_vec();
+        let new_bytes = original_bytes.iter().zip_eq(bytes_diff).map(|(original_byte, diff_byte)| original_byte ^ diff_byte).collect_vec();
         patch.write_bytes(write_address, new_bytes);
     }
     patch
