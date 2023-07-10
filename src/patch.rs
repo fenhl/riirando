@@ -185,6 +185,17 @@ impl<'a> Patch<'a> {
         zpf_buf.into_inner().flush().await?; // make sure data is actually written to writer
         Ok(())
     }
+
+    pub(crate) async fn write_uncompressed_rom(&self, mut writer: impl AsyncWrite + Unpin) -> io::Result<()> {
+        let mut address = 0;
+        for &(start_address, ref new_data) in &self.changed_segments {
+            writer.write_all(&self.base_rom[address..start_address]).await?;
+            writer.write_all(&new_data).await?;
+            address = start_address + new_data.len();
+        }
+        writer.write_all(&self.base_rom[address..]).await?;
+        Ok(())
+    }
 }
 
 impl<'a> Index<usize> for Patch<'a> {

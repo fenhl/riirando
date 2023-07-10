@@ -12,6 +12,12 @@ use {
 
 mod patch;
 
+#[derive(clap::Parser)]
+struct Args {
+    #[clap(long)]
+    write_uncompressed_rom: bool,
+}
+
 #[derive(Debug, thiserror::Error)]
 enum Error {
     #[error(transparent)] Io(#[from] tokio::io::Error),
@@ -24,7 +30,7 @@ enum Error {
 }
 
 #[wheel::main(debug)]
-async fn main() -> Result<(), Error> {
+async fn main(args: Args) -> Result<(), Error> {
     let mut stdin = stdin();
     if stdin.is_tty() { return Err(Error::Stdin) }
     let mut input_rom = vec![0; 0x0200_0000];
@@ -47,6 +53,10 @@ async fn main() -> Result<(), Error> {
     }
     //TODO actually randomize stuff
     let patch = patch::patch_rom(&base_rom);
-    patch.write_zpf(stdout()).await?;
+    if args.write_uncompressed_rom {
+        patch.write_uncompressed_rom(stdout()).await?;
+    } else {
+        patch.write_zpf(stdout()).await?;
+    }
     Ok(())
 }
