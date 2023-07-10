@@ -24,7 +24,7 @@ New fill algorithm for the Ocarina of Time randomizer
 * It might make sense to store entrances as separate tables for each world, to avoid wasting a bunch of memory.
 * One-ways need to be separate from two-way entrances, because:
     * A one-way going to an entrance doesn't prevent a two-way from also going there.
-    * One-ways work differently from two-ways in that not every possible destination will be filled, so it doesn't make sense to “choose a one-way that will go here” (unless retaining the concept of priority one-ways is desired) so only one dimension of the one-way table is considered for next row/column to pick.
+    * One-ways work differently from two-ways in that not every possible destination will be filled, so it doesn't make sense to “choose a one-way that will go here” (unless “none” is one of the options and/or retaining the concept of priority one-ways is desired) so only one dimension of the one-way table is considered for next row/column to pick.
     * The possible targets for blue warps in “own dungeon entrance” mode are algorithmically determined based on the configurations of other entrances.
 
 All randomization tables would be considered at the same time for picking the next row/column.
