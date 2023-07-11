@@ -32,13 +32,6 @@ pub(crate) struct Patch<'a> {
 }
 
 impl<'a> Patch<'a> {
-    fn new(base_rom: &'a [u8]) -> Self {
-        Self {
-            changed_segments: Vec::default(),
-            base_rom,
-        }
-    }
-
     fn write_bytes(&mut self, start_address: usize, bytes: impl Into<Cow<'a, [u8]>>) {
         let mut data_to_insert = bytes.into();
         // merge with subsequent adjacent/overlapping segments
@@ -219,7 +212,10 @@ impl<'a> Index<usize> for Patch<'a> {
 }
 
 pub(crate) fn patch_rom(base_rom: &[u8]) -> Patch<'_> {
-    let mut patch = Patch::new(base_rom);
+    let mut patch = Patch {
+        changed_segments: include!(concat!(env!("OUT_DIR"), "/rom-patch.rs")),
+        base_rom,
+    };
     let binary_patches = [
         (include_bytes!("../assets/title.bin"), 0x0179_5300), // Randomizer title screen logo
     ];
