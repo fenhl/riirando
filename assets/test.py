@@ -31,4 +31,5 @@ else:
         with UNCOMPRESSED_OUTPUT_PATH.open('wb') as uncompressed_output_file:
             subprocess.run(['cargo', 'run', '--', '--write-uncompressed-rom'], stdin=base_rom, stdout=uncompressed_output_file, check=True)
         subprocess.run([str(PY_REPO_DIR / 'bin' / 'Compress' / 'Compress.exe'), str(UNCOMPRESSED_OUTPUT_PATH), str(COMPRESSED_OUTPUT_PATH)], cwd=PY_REPO_DIR, check=True)
-subprocess.run(['bizhawk', str(COMPRESSED_OUTPUT_PATH)], check=True)
+if '--no-emu' not in sys.argv[1:]:
+    subprocess.run(['bizhawk', str(COMPRESSED_OUTPUT_PATH)], check=True)

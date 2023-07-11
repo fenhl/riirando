@@ -11,6 +11,7 @@ use {
 };
 
 mod patch;
+mod search;
 
 #[derive(clap::Parser)]
 struct Args {
@@ -25,6 +26,8 @@ enum Error {
     BaseRom,
     #[error("standard input is an OoT PAL ROM, but we need an NTSC ROM")]
     PalBaseRom,
+    #[error("cannot beat game")]
+    Search,
     #[error("standard input is a TTY")]
     Stdin,
 }
@@ -52,6 +55,9 @@ async fn main(args: Args) -> Result<(), Error> {
         _ => return Err(Error::BaseRom),
     }
     //TODO actually randomize stuff
+    if !search::can_win() {
+        return Err(Error::Search)
+    }
     let patch = patch::patch_rom(&base_rom);
     if args.write_uncompressed_rom {
         patch.write_uncompressed_rom(stdout()).await?;
