@@ -29,13 +29,13 @@ use {
 };
 
 fn format_segment(start_address: usize, data: Vec<u8>) -> String {
-    format!("    (0x{:08x}, ::std::borrow::Cow::Borrowed(&[0x{:02x}])),\n", start_address, data.into_iter().format(", 0x"))
+    format!("    ({:#010x}, ::std::borrow::Cow::Borrowed(&[{:#04x}])),\n", start_address, data.into_iter().format(", "))
 }
 
 #[derive(Debug, thiserror::Error)]
 enum Error {
     #[error(transparent)] Wheel(#[from] wheel::Error),
-    #[error("assets/base.n64 should be 0x0400_0000 bytes (64 MiB), but yours is 0x{0:x} bytes ({} MiB). Make sure you have an uncompressed base ROM (use bin/Decompress from OoTR to decompress one).", .0 / 1024_u64.pow(2))]
+    #[error("assets/base.n64 should be 0x4000000 bytes (64 MiB), but yours is {0:#x} bytes ({} MiB). Make sure you have an uncompressed base ROM (use bin/Decompress from OoTR to decompress one).", .0 / 1024_u64.pow(2))]
     BaseRomSize(u64),
 }
 
