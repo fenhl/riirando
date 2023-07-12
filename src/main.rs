@@ -2,6 +2,7 @@
 #![forbid(unsafe_code)]
 
 use {
+    std::num::NonZeroU8,
     crossterm::tty::IsTty as _,
     tokio::io::{
         AsyncReadExt as _,
@@ -15,8 +16,10 @@ mod search;
 
 #[derive(clap::Parser)]
 struct Args {
-    #[clap(long)]
-    write_uncompressed_rom: bool,
+    #[clap(short, long, default_value = "1")]
+    world_count: NonZeroU8,
+    #[clap(short = 'p', long)]
+    world: Option<NonZeroU8>,
 }
 
 #[derive(Debug, thiserror::Error)]
@@ -54,15 +57,20 @@ async fn main(args: Args) -> Result<(), Error> {
         [0xEE, 0x9D, 0x53, 0xB5, 0xBC, 0x01, 0xD0, 0x15] => return Err(Error::PalBaseRom), // PAL (decompressed)
         _ => return Err(Error::BaseRom),
     }
+    let worlds = vec![(); args.world_count.get().into()];
     //TODO actually randomize stuff
-    if !search::can_win() {
+    if !search::can_win(&worlds) {
         return Err(Error::Search)
     }
     let patch = patch::patch_rom(&base_rom);
-    if args.write_uncompressed_rom {
+    if let Some(_) = args.world {
         patch.write_uncompressed_rom(stdout()).await?;
     } else {
-        patch.write_zpf(stdout()).await?;
+        if args.world_count.get() > 1 {
+            unimplemented!() //TODO write zpfz
+        } else {
+            patch.write_zpf(stdout()).await?;
+        }
     }
     Ok(())
 }
