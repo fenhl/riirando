@@ -14,8 +14,18 @@ use {
 mod patch;
 mod search;
 
+#[derive(Default, Clone, clap::ValueEnum)]
+enum OutputKind {
+    None,
+    Patch,
+    #[default]
+    UncompressedRom,
+}
+
 #[derive(clap::Parser)]
 struct Args {
+    #[clap(short = 't', long, value_enum, default_value_t)]
+    output_type: OutputKind,
     #[clap(short, long, default_value = "1")]
     world_count: NonZeroU8,
     #[clap(short = 'p', long)]
@@ -27,6 +37,8 @@ enum Error {
     #[error(transparent)] Io(#[from] tokio::io::Error),
     #[error("standard input is not a valid OoT 1.0 NTSC ROM")]
     BaseRom,
+    #[error("specify the world number to output or choose a different output type")]
+    MultipleOutputs,
     #[error("standard input is an OoT PAL ROM, but we need an NTSC ROM")]
     PalBaseRom,
     #[error("cannot beat game")]
@@ -63,13 +75,17 @@ async fn main(args: Args) -> Result<(), Error> {
         return Err(Error::Search)
     }
     let patch = patch::patch_rom(&base_rom);
-    if let Some(_) = args.world {
-        patch.write_uncompressed_rom(stdout()).await?;
+    if let Some(_output_world) = args.world.or_else(|| (args.world_count.get() == 1).then_some(NonZeroU8::new(1).unwrap())) {
+        match args.output_type {
+            OutputKind::None => {}
+            OutputKind::Patch => patch.write_zpf(stdout()).await?,
+            OutputKind::UncompressedRom => patch.write_uncompressed_rom(stdout()).await?,
+        }
     } else {
-        if args.world_count.get() > 1 {
-            unimplemented!() //TODO write zpfz
-        } else {
-            patch.write_zpf(stdout()).await?;
+        match args.output_type {
+            OutputKind::None => {}
+            OutputKind::Patch => unimplemented!(), //TODO write zpfz
+            OutputKind::UncompressedRom => return Err(Error::MultipleOutputs), //TODO output zip archive of roms?
         }
     }
     Ok(())

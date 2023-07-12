@@ -83,5 +83,10 @@ pub(crate) fn can_win(worlds: &[()]) -> bool {
             .map(|(_, to)| to)
             .collect::<GlobalStateSet>()
     });
-    reachable_states.all(|reachable_states| reachable_states.ages.contains(Age::Adult)) // needs to be adult to reach Ganon //TODO different win conditions, e.g. ALR, no logic, Triforce Hunt, Bingo
+    reachable_states.all(|reachable_states| {
+        // needs to be child to collect Zelda's Lullaby, which is required to beat the Shadow temple
+        reachable_states.ages.contains(Age::Child)
+        // needs to be adult to reach Ganon
+        && reachable_states.ages.contains(Age::Adult)
+    }) //TODO different win conditions, e.g. ALR, no logic, Triforce Hunt, Bingo
 }
