@@ -116,6 +116,7 @@ impl<'a> Patch<'a> {
                 if byte == key {
                     self.write_block_section(block.start, key_offset, &new_data, continue_block, writer).await?;
                     new_data = Vec::with_capacity(block.end - address);
+                    key_offset = 0;
                     continue_block = true;
                     // search for next safe XOR key
                     while byte == key {
