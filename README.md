@@ -1,4 +1,4 @@
-**riirando** is a reimplementation of the [Ocarina of Time randomizer](https://github.com/TestRunnerSRL/OoT-Randomizer).
+**riirando** is a reimplementation of the [Ocarina of Time randomizer](https://github.com/OoTRandomizer/OoT-Randomizer).
 
 # Goals
 
@@ -11,6 +11,6 @@
 
 # Non-goals (for now)
 
-* Cosmetics and generating patched roms. Those are best handled by the offline patcher.
+* Cosmetics and generating from patch files. Those are best handled by the offline patcher.
 * Compatibility with the web patcher. It's closed source and breaks with patch files that work fine in the offline patcher, making it difficult to debug.
-* Glitched logic. I don't know enough about glitches to support it.
+* Glitched logic. I don't know enough about glitches to support it, but contributions are welcome.
