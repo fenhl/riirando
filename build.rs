@@ -41,8 +41,8 @@ enum Error {
 
 #[wheel::main(debug)]
 async fn main() -> Result<(), Error> {
-    println!("cargo:rerun-if-changed=assets/asm");
-    println!("cargo:rerun-if-changed=assets/base.n64");
+    println!("cargo::rerun-if-changed=assets/asm");
+    println!("cargo::rerun-if-changed=assets/base.n64");
     // give a better error when a compressed base rom is supplied
     let base_rom_size = fs::metadata("assets/base.n64").await?.len();
     if base_rom_size != 0x0400_0000 {
