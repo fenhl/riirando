@@ -1,43 +1,32 @@
 use {
+    std::collections::HashSet,
     enum_iterator::{
         Sequence,
         all,
-    },
-    enumset::{
-        EnumSet,
-        EnumSetType,
     },
     itertools::Itertools as _,
     petgraph::matrix_graph::DiMatrix,
 };
 
-#[derive(EnumSetType, Sequence)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Sequence)]
 enum Age {
     Child,
     Adult,
 }
 
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Sequence)]
+enum TimeOfDay {
+    Noon,
+    Dampe,
+    Midnight,
+}
+
 /// World state that changes over a seed and is reversible but persists across savewarps.
-#[derive(Clone, Copy, PartialEq, Eq, Sequence)]
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Sequence)]
 struct GlobalState {
     age: Age,
-    //TODO time of day, spawn position
-}
-
-#[derive(Default)]
-struct GlobalStateSet {
-    ages: EnumSet<Age>,
-    //TODO times of day, spawn positions
-}
-
-impl FromIterator<GlobalState> for GlobalStateSet {
-    fn from_iter<T: IntoIterator<Item = GlobalState>>(iter: T) -> Self {
-        let mut set = Self::default();
-        for GlobalState { age } in iter {
-            set.ages.insert(age);
-        }
-        set
-    }
+    time_of_day: TimeOfDay,
+    //TODO spawn position, health
 }
 
 pub(crate) fn can_win(worlds: &[()]) -> bool {
@@ -55,20 +44,34 @@ pub(crate) fn can_win(worlds: &[()]) -> bool {
                 }
                 // check whether the target state is directly reachable from the source state
                 let is_reachable = match (from, to) {
-                    (GlobalState { age: Age::Child }, GlobalState { age: Age::Child }) |
-                    (GlobalState { age: Age::Adult }, GlobalState { age: Age::Adult }) => {
+                    (GlobalState { age: Age::Child, time_of_day: TimeOfDay::Noon }, GlobalState { age: Age::Child, time_of_day: TimeOfDay::Noon }) |
+                    (GlobalState { age: Age::Child, time_of_day: TimeOfDay::Dampe }, GlobalState { age: Age::Child, time_of_day: TimeOfDay::Dampe }) |
+                    (GlobalState { age: Age::Child, time_of_day: TimeOfDay::Midnight }, GlobalState { age: Age::Child, time_of_day: TimeOfDay::Midnight }) |
+                    (GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Noon }, GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Noon }) |
+                    (GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Dampe }, GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Dampe }) |
+                    (GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Midnight }, GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Midnight }) => {
                         // The two states are identical, which is covered by the `has_path_connecting` check.
                         unreachable!()
                     }
-                    (GlobalState { age: Age::Child }, GlobalState { age: Age::Adult }) => {
+                    (GlobalState { age: Age::Child, time_of_day: TimeOfDay::Noon }, GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Noon }) |
+                    (GlobalState { age: Age::Child, time_of_day: TimeOfDay::Dampe }, GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Dampe }) |
+                    (GlobalState { age: Age::Child, time_of_day: TimeOfDay::Midnight }, GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Midnight }) => {
                         // No items or entrances shuffled yet, so Door of Time can be opened as child.
                         true
                     }
-                    (GlobalState { age: Age::Adult }, GlobalState { age: Age::Child }) => {
+                    (GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Noon }, GlobalState { age: Age::Child, time_of_day: TimeOfDay::Noon }) |
+                    (GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Dampe }, GlobalState { age: Age::Child, time_of_day: TimeOfDay::Dampe }) |
+                    (GlobalState { age: Age::Adult, time_of_day: TimeOfDay::Midnight }, GlobalState { age: Age::Child, time_of_day: TimeOfDay::Midnight }) => {
                         // Starting age is always child, so we assume that if the player was able to bypass the Door of Time as child, they can do so again as adult.
                         // This will technically not be safe once we start shuffling items since adult requires items to skip the DoT, but it's required to make pretty much any logic work, so the “know what you're doing if you use glitches” rule applies.
                         true
                     }
+                    (GlobalState { age: Age::Child, time_of_day: _ }, GlobalState { age: Age::Child, time_of_day: _ }) |
+                    (GlobalState { age: Age::Adult, time_of_day: _ }, GlobalState { age: Age::Adult, time_of_day: _ }) => {
+                        // No items or entrances shuffled yet, so both ages have access to regions where time passes, e.g. Hyrule Field.
+                        true
+                    }
+                    (_, _) => false,
                 };
 
                 if is_reachable {
@@ -77,16 +80,16 @@ pub(crate) fn can_win(worlds: &[()]) -> bool {
             }
         }
         let mut dfs_space = petgraph::algo::DfsSpace::new(&reachability_graph);
-        all()
+        all::<GlobalState>()
             .enumerate()
             .filter(|&(to_idx, _)| node_indices.iter().all(|&from_idx| petgraph::algo::has_path_connecting(&reachability_graph, from_idx, node_indices[to_idx], Some(&mut dfs_space))))
             .map(|(_, to)| to)
-            .collect::<GlobalStateSet>()
+            .collect::<HashSet<_>>()
     });
     reachable_states.all(|reachable_states| {
         // needs to be child to collect Zelda's Lullaby, which is required to beat the Shadow temple
-        reachable_states.ages.contains(Age::Child)
+        reachable_states.iter().any(|state| state.age == Age::Child)
         // needs to be adult to reach Ganon
-        && reachable_states.ages.contains(Age::Adult)
+        && reachable_states.iter().any(|state| state.age == Age::Adult)
     }) //TODO different win conditions, e.g. ALR, no logic, Triforce Hunt, Bingo
 }

@@ -12,7 +12,6 @@ async-compression = { version = "0.3", features = ["tokio", "zlib"] }
 clap = { version = "4.3.11", features = ["derive"] }
 crossterm = "0.25"
 enum-iterator = "1.4.1"
-enumset = "1.1.2"
 itertools = "0.10"
 petgraph = { version = "0.6.3", default-features = false, features = ["matrix_graph"] }
 rand = "0.8"
