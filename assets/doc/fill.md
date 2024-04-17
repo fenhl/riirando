@@ -39,7 +39,9 @@ The global states are times of day (here counting midnight, noon, and Dampé tim
 
 To verify that this is the case, for each of the possible concrete state combinations (child midnight, adult midnight, child noon, adult noon, child Dampé time, and adult Dampé time), start a search where spawn access exists in that state but no other states are accessible, then check which other states are reachable. Then for the actual search, consider spawn to be accessible as the states that were transitively reachable from all other states.
 
-For the real search, we map regions to sets of state combinations in which they're accessible, with each state space having an additional “unknown” row. Notably, an “unknown time of day, unknown age” entry should be distinguished from an empty (or equivalently, missing) one: it means that the region is known to be accessible at some time of day as some age, but not what those states are. For events and checks in accessible regions, we check if any one of the marked state combinations of the region are enough to access the check, with “unknown” meaning that all possibilities of that state space have to yield access.
+For the real search, we map regions to sets of state combinations in which they're accessible, with each state space having an additional “unknown” row. Notably, an “unknown time of day, unknown age” entry should be distinguished from an empty (or equivalently, missing) one: it means that the region is known to be accessible at some time of day as some age, but not what those states are. For example, this is always the case for the root region even if no state combinations have been shown to be repeatable by the preliminary searches. For events and checks in accessible regions, we check if any one of the marked state combinations of the region are enough to access the check, with “unknown” meaning that all possibilities of that state space have to yield access.
+
+**TODO:** What about Farore's Wind?
 
 ### Health state
 

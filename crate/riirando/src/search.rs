@@ -1,15 +1,20 @@
 use {
-    std::collections::HashSet,
+    std::collections::{
+        HashMap,
+        HashSet,
+    },
+    collect_mac::collect,
     enum_iterator::{
         Sequence,
         all,
     },
     itertools::Itertools as _,
     petgraph::matrix_graph::DiMatrix,
+    crate::logic::Region,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Sequence)]
-enum Age {
+pub(crate) enum Age {
     Child,
     Adult,
 }
@@ -23,8 +28,8 @@ enum TimeOfDay {
 
 /// World state that changes over a seed and is reversible but persists across savewarps.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Sequence)]
-struct GlobalState {
-    age: Age,
+pub(crate) struct GlobalState {
+    pub(crate) age: Age,
     time_of_day: TimeOfDay,
     //TODO spawn position, health
 }
@@ -33,7 +38,7 @@ pub(crate) fn can_win(worlds: &[()]) -> bool {
     // We only consider global states in logic if they're reachable from all other global states.
     // This way, even if a player reaches a global state out of logic, they can't get stuck.
     // To avoid a combinatorial explosion, we require each world to do so without outside help.
-    let mut reachable_states = worlds.into_iter().map(|()| {
+    let reachable_states = worlds.into_iter().map(|()| {
         let mut reachability_graph = DiMatrix::<_, _>::with_capacity(GlobalState::CARDINALITY);
         let node_indices = all::<GlobalState>().map(|state| reachability_graph.add_node(state)).collect_vec();
         for (from_idx, from) in all().enumerate() {
@@ -86,10 +91,32 @@ pub(crate) fn can_win(worlds: &[()]) -> bool {
             .map(|(_, to)| to)
             .collect::<HashSet<_>>()
     });
-    reachable_states.all(|reachable_states| {
+    // The root region is reachable as all states which were proven reachable above.
+    let mut region_access = reachable_states
+        .map(|world_reachable_states| collect![as HashMap<_, _>: Region::Root => world_reachable_states])
+        .collect_vec();
+    // Now we start the real search.
+    loop {
+        let mut progress_made = false;
+        for world_region_access in &mut region_access {
+            for (region, states) in world_region_access.clone() {
+                for (vanilla_target, access) in region.info().exits {
+                    for state in &states {
+                        if !world_region_access.get(&vanilla_target).is_some_and(|already_reachable_states| already_reachable_states.contains(state)) && access(state) {
+                            world_region_access.entry(vanilla_target).or_default().insert(*state);
+                            progress_made = true;
+                        }
+                    }
+                }
+            }
+        }
+        if !progress_made { break }
+    }
+    // Search completed, check if we can beat the game.
+    region_access.into_iter().all(|world_region_access| {
         // needs to be child to collect Zelda's Lullaby, which is required to beat the Shadow temple
-        reachable_states.iter().any(|state| state.age == Age::Child)
-        // needs to be adult to reach Ganon
-        && reachable_states.iter().any(|state| state.age == Age::Adult)
+        world_region_access.get(&Region::Root).is_some_and(|states| states.iter().any(|state| state.age == Age::Child))
+        // needs to be able to reach Ganon
+        && world_region_access.get(&Region::GanondorfBossRoom).is_some()
     }) //TODO different win conditions, e.g. ALR, no logic, Triforce Hunt, Bingo
 }

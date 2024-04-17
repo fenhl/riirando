@@ -8,6 +8,7 @@ use {
     },
 };
 
+mod logic;
 mod patch;
 mod search;
 
@@ -72,7 +73,7 @@ async fn main(args: Args) -> Result<(), Error> {
         return Err(Error::Search)
     }
     let patch = patch::patch_rom(&base_rom);
-    if let Some(_output_world) = args.world.or_else(|| (args.world_count.get() == 1).then_some(NonZeroU8::new(1).unwrap())) {
+    if let Some(_output_world) = args.world.or_else(|| (args.world_count.get() == 1).then_some(NonZeroU8::MIN)) {
         match args.output_type {
             OutputKind::None => {}
             OutputKind::Patch => patch.write_zpf(stdout()).await?,

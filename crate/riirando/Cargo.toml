@@ -10,6 +10,7 @@ workspace = true
 [dependencies]
 async-compression = { version = "0.3", features = ["tokio", "zlib"] }
 clap = { version = "4.3.11", features = ["derive"] }
+collect-mac = "0.1.0"
 crossterm = "0.25"
 enum-iterator = "1.4.1"
 itertools = "0.10"

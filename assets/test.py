@@ -18,11 +18,11 @@ PY_REPO_DIR = pathlib.Path.home() / 'git' / 'github.com' / 'OoTRandomizer' / 'Oo
 GENERATED_DIR.mkdir(parents=True, exist_ok=True)
 if '--no-emu' in sys.argv[1:]:
     with BASE_ROM_PATH.open('rb') as base_rom:
-        subprocess.run(['cargo', 'run', '--', '--output-type=none'], stdin=base_rom, check=True)
+        subprocess.run(['cargo', 'run', *(['--release'] if '--release' in sys.argv[1:] else []), '--', '--output-type=none'], stdin=base_rom, check=True)
 elif '--patch' in sys.argv[1:]:
     with BASE_ROM_PATH.open('rb') as base_rom:
         with PATCH_PATH.open('wb') as patch_file:
-            subprocess.run(['cargo', 'run', '--', '--output-type=patch'], stdin=base_rom, stdout=patch_file, check=True)
+            subprocess.run(['cargo', 'run', *(['--release'] if '--release' in sys.argv[1:] else []), '--', '--output-type=patch'], stdin=base_rom, stdout=patch_file, check=True)
     subprocess.run([sys.executable, str(PY_REPO_DIR / 'OoTRandomizer.py'), '--settings=-'], input=json.dumps({ #TODO pull Python randomizer first
         'generate_from_file': True,
         'rom': str(BASE_ROM_PATH),
@@ -33,6 +33,6 @@ elif '--patch' in sys.argv[1:]:
 else:
     with BASE_ROM_PATH.open('rb') as base_rom:
         with UNCOMPRESSED_OUTPUT_PATH.open('wb') as uncompressed_output_file:
-            subprocess.run(['cargo', 'run', '--', '--output-type=uncompressed-rom'], stdin=base_rom, stdout=uncompressed_output_file, check=True)
+            subprocess.run(['cargo', 'run', *(['--release'] if '--release' in sys.argv[1:] else []), '--', '--output-type=uncompressed-rom'], stdin=base_rom, stdout=uncompressed_output_file, check=True)
         subprocess.run([str(PY_REPO_DIR / 'bin' / 'Compress' / 'Compress.exe'), str(UNCOMPRESSED_OUTPUT_PATH), str(COMPRESSED_OUTPUT_PATH)], cwd=PY_REPO_DIR, check=True)
     subprocess.run(['bizhawk', str(COMPRESSED_OUTPUT_PATH)], check=True)
