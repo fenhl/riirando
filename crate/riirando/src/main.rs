@@ -1,6 +1,3 @@
-#![deny(rust_2018_idioms, unused, unused_crate_dependencies, unused_import_braces, unused_lifetimes, unused_qualifications, warnings)]
-#![forbid(unsafe_code)]
-
 use {
     std::num::NonZeroU8,
     crossterm::tty::IsTty as _,
@@ -47,7 +44,7 @@ enum Error {
     Stdin,
 }
 
-#[wheel::main(debug)]
+#[wheel::main]
 async fn main(args: Args) -> Result<(), Error> {
     let mut stdin = stdin();
     if stdin.is_tty() { return Err(Error::Stdin) }

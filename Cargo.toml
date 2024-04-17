@@ -1,26 +1,23 @@
-[package]
-name = "riirando"
+[workspace]
+members = ["crate/*"]
+default-members = ["crate/riirando"]
+resolver = "2"
+
+[workspace.package]
 version = "0.1.0"
+authors = ["Fenhl <fenhl@fenhl.net>"]
 edition = "2021"
+
+[workspace.lints.rust]
+rust_2018_idioms = "deny"
+unsafe_code = "forbid"
+unused = "deny"
+unused_crate_dependencies = "deny"
+unused_import_braces = "deny"
+unused_lifetimes = "deny"
+unused_qualifications = "deny"
+warnings = "deny"
 
 [profile.release]
 lto = true
 strip = true
-
-[dependencies]
-async-compression = { version = "0.3", features = ["tokio", "zlib"] }
-clap = { version = "4.3.11", features = ["derive"] }
-crossterm = "0.25"
-enum-iterator = "1.4.1"
-itertools = "0.10"
-petgraph = { version = "0.6.3", default-features = false, features = ["matrix_graph"] }
-rand = "0.8"
-thiserror = "1"
-tokio = { version = "1", features = ["io-std", "io-util"] }
-wheel = { git = "https://github.com/fenhl/wheel", branch = "main" }
-
-[build-dependencies]
-itertools = "0.10"
-thiserror = "1"
-tokio = { version = "1", features = ["io-util", "process"] }
-wheel = { git = "https://github.com/fenhl/wheel", branch = "main" }

@@ -45,6 +45,8 @@ For the real search, we map regions to sets of state combinations in which they'
 
 It might be possible to put heart upgrades into logic by tracking the maximum available hearts & fairies as a parameter of global state. Spawn always starts at 3 hearts, heart refills max out health (depending on heart containers), fairy refills max out fairies (depending on bottles, need to ensure there's no conflict with other required bottle contents, such as bugs), reduce max available when taking damage.
 
+**TODO:** What about red potions/blue potions/milk? May have to consider multiple options per instance of damage, since it's possible that using healing items in specific orders is optimal in some cases?
+
 ## Possible optimization to replace priority one-ways
 
 Track whether taking an unplaced one-way entrance was required to reach a check. This can be overwritten later in the same search if the check turns out to be reachable without taking one. Keep track of possible combinations of one-way entrance placements to make each check reachable. If at the end of a search, the win condition (or in ALR, any check) required an unplaced one-way, choose one of the possible combinations at random and connect those one-ways that way.

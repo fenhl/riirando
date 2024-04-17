@@ -41,17 +41,17 @@ enum Error {
 
 #[wheel::main(debug)]
 async fn main() -> Result<(), Error> {
-    println!("cargo::rerun-if-changed=assets/asm");
-    println!("cargo::rerun-if-changed=assets/base.n64");
+    println!("cargo::rerun-if-changed=../../assets/asm");
+    println!("cargo::rerun-if-changed=../../assets/base.n64");
     // give a better error when a compressed base rom is supplied
-    let base_rom_size = fs::metadata("assets/base.n64").await?.len();
+    let base_rom_size = fs::metadata("../../assets/base.n64").await?.len();
     if base_rom_size != 0x0400_0000 {
         return Err(Error::BaseRomSize(base_rom_size))
     }
     // assemble patches
-    Command::new("armips").arg("assets/asm/main.asm").check("armips").await?;
+    Command::new("armips").arg("../../assets/asm/main.asm").check("armips").await?;
     // create a diff of the patched rom
-    let (base_rom, patched_rom) = tokio::try_join!(File::open("assets/base.n64"), File::open("assets/generated/asm-patched.n64"))?;
+    let (base_rom, patched_rom) = tokio::try_join!(File::open("../../assets/base.n64"), File::open("../../assets/generated/asm-patched.n64"))?;
     let mut base_rom = BufReader::new(base_rom);
     let mut patched_rom = BufReader::new(patched_rom);
     let mut current_segment = None;

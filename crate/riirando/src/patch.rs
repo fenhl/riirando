@@ -218,7 +218,7 @@ pub(crate) fn patch_rom(base_rom: &[u8]) -> Patch<'_> {
         base_rom,
     };
     let binary_patches = [
-        (include_bytes!("../assets/title.bin"), 0x0179_5300), // Randomizer title screen logo
+        (include_bytes!("../../../assets/title.bin"), 0x0179_5300), // Randomizer title screen logo
     ];
     for (bytes_diff, write_address) in binary_patches {
         // unlike in the Python randomizer, these files are already decompressed
