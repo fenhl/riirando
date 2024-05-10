@@ -29,10 +29,10 @@ elif '--patch' in sys.argv[1:]:
         'patch_file': str(PATCH_PATH),
         'output_dir': str(GENERATED_DIR),
     }), encoding='utf-8', check=True)
-    subprocess.run(['bizhawk', str(COMPRESSED_OUTPUT_PATH)], check=True)
+    subprocess.run(['bizhawk', str(COMPRESSED_OUTPUT_PATH)], cwd=pathlib.Path.home() / 'bin' / 'BizHawk', check=True)
 else:
     with BASE_ROM_PATH.open('rb') as base_rom:
         with UNCOMPRESSED_OUTPUT_PATH.open('wb') as uncompressed_output_file:
             subprocess.run(['cargo', 'run', *(['--release'] if '--release' in sys.argv[1:] else []), '--', '--output-type=uncompressed-rom'], stdin=base_rom, stdout=uncompressed_output_file, check=True)
         subprocess.run([str(PY_REPO_DIR / 'bin' / 'Compress' / 'Compress.exe'), str(UNCOMPRESSED_OUTPUT_PATH), str(COMPRESSED_OUTPUT_PATH)], cwd=PY_REPO_DIR, check=True)
-    subprocess.run(['bizhawk', str(COMPRESSED_OUTPUT_PATH)], check=True)
+    subprocess.run(['bizhawk', str(COMPRESSED_OUTPUT_PATH)], cwd=pathlib.Path.home() / 'bin' / 'BizHawk', check=True)
