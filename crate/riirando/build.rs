@@ -39,7 +39,7 @@ enum Error {
     BaseRomSize(u64),
 }
 
-#[wheel::main(debug)]
+#[wheel::main]
 async fn main() -> Result<(), Error> {
     println!("cargo::rerun-if-changed=../../assets/asm");
     println!("cargo::rerun-if-changed=../../assets/base.n64");
