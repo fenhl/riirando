@@ -8,12 +8,12 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
-async-compression = { version = "0.3", features = ["tokio", "zlib"] }
+async-compression = { version = "0.4", features = ["tokio", "zlib"] }
 clap = { version = "4.3.11", features = ["derive"] }
 collect-mac = "0.1.0"
-crossterm = "0.25"
-enum-iterator = "1.4.1"
-itertools = "0.10"
+crossterm = "0.27"
+enum-iterator = "2"
+itertools = "0.12"
 petgraph = { version = "0.6.3", default-features = false, features = ["matrix_graph"] }
 rand = "0.8"
 thiserror = "1"
@@ -21,7 +21,7 @@ tokio = { version = "1", features = ["io-std", "io-util"] }
 wheel = { git = "https://github.com/fenhl/wheel", branch = "main" }
 
 [build-dependencies]
-itertools = "0.10"
+itertools = "0.12"
 thiserror = "1"
 tokio = { version = "1", features = ["io-util", "process"] }
 wheel = { git = "https://github.com/fenhl/wheel", branch = "main" }
