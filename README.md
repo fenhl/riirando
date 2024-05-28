@@ -9,6 +9,7 @@
 * Find bugs by reimplementing things in a programming language with a strict compiler
 * Experiment with augmenting the ASM/C code with Rust for better ergonomics
 * Write a Rust-based compressor and decompressor that run on NixOS, based on the new MIT-licensed [compressor](https://github.com/CMuncey/Zelda64_Compressor) and [decompressor](https://github.com/CMuncey/OoT_Decompressor) written in C
+* Prototype [a new GUI](https://gist.github.com/fenhl/394e09e8ea5ac5e552c8c61d016992a6) that's more tightly integrated into the rest of the codebase and addresses some of the [open GUI issues](https://github.com/OoTRandomizer/OoT-Randomizer/labels/Component%3A%20GUI%2FWebsite)
 
 # Non-goals (for now)
 
