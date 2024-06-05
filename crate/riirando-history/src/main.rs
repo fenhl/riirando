@@ -30,7 +30,7 @@ impl<'a> From<git2::Object<'a>> for Error {
 #[wheel::main]
 fn main() -> Result<(), Error> {
     let repo = Repository::open("C:/Users/fenhl/git/github.com/fenhl/OoT-Randomizer/stage")?;
-    let mut commit = repo.head()?.peel_to_commit()?;
+    let mut commit = repo.find_branch("dev-fenhl", git2::BranchType::Local)?.into_reference().peel_to_commit()?; //TODO implement version parsing from Cargo.toml and include riir branch?
     loop {
         let version = if commit.id() == git2::Oid::from_str("c435f0af131492386709700eaefc7840c2b992a1")? {
             ootr_utils::Version::from_dev(0, 0, 0)
