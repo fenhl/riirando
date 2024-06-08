@@ -16,6 +16,8 @@ enum-iterator = "2"
 itertools = "0.12"
 petgraph = { version = "0.6.3", default-features = false, features = ["matrix_graph"] }
 rand = "0.8"
+riirando-common = { path = "../riirando-common" }
+riirando-macros = { path = "../riirando-macros" }
 thiserror = "1"
 tokio = { version = "1", features = ["io-std", "io-util"] }
 wheel = { git = "https://github.com/fenhl/wheel", branch = "main" }

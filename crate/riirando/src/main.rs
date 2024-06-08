@@ -33,14 +33,13 @@ struct Args {
 #[derive(Debug, thiserror::Error)]
 enum Error {
     #[error(transparent)] Io(#[from] tokio::io::Error),
+    #[error(transparent)] Search(#[from] search::Error),
     #[error("standard input is not a valid OoT 1.0 NTSC ROM")]
     BaseRom,
     #[error("specify the world number to output or choose a different output type")]
     MultipleOutputs,
     #[error("standard input is an OoT PAL ROM, but we need an NTSC ROM")]
     PalBaseRom,
-    #[error("cannot beat game")]
-    Search,
     #[error("standard input is a TTY")]
     Stdin,
 }
@@ -69,9 +68,7 @@ async fn main(args: Args) -> Result<(), Error> {
     }
     let worlds = vec![(); args.world_count.get().into()];
     //TODO actually randomize stuff
-    if !search::can_win(&worlds) {
-        return Err(Error::Search)
-    }
+    search::check_reachability(&worlds)?;
     let patch = patch::patch_rom(&base_rom);
     if let Some(_output_world) = args.world.or_else(|| (args.world_count.get() == 1).then_some(NonZeroU8::MIN)) {
         match args.output_type {

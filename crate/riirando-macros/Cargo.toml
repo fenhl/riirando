@@ -1,0 +1,19 @@
+[package]
+name = "riirando-macros"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+proc-macro = true
+
+[dependencies]
+convert_case = "0.6.0"
+proc-macro2 = "1.0.85"
+quote = "1.0.36"
+riirando-common = { path = "../riirando-common" }
+syn = "2.0.66"
+thiserror = "1.0.61"

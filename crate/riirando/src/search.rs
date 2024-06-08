@@ -13,13 +13,11 @@ use {
     },
     itertools::Itertools as _,
     petgraph::matrix_graph::DiMatrix,
-    crate::logic::{
-        Region,
-        TimeOfDayBehavior,
-    },
+    riirando_common::TimeOfDayBehavior,
+    crate::logic::Region,
 };
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Sequence)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Sequence)]
 pub(crate) enum Age {
     Child,
     Adult,
@@ -36,7 +34,7 @@ impl Not for Age {
     }
 }
 
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Sequence)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Sequence)]
 pub(crate) enum TimeOfDay {
     Noon,
     Dampe,
@@ -51,10 +49,12 @@ impl TimeOfDay {
             Self::Midnight => false,
         }
     }
+
+    pub(crate) fn is_night(&self) -> bool { !self.is_day() }
 }
 
 /// World state that changes over a seed and is reversible but persists across savewarps.
-#[derive(Clone, Copy, PartialEq, Eq, Hash, Sequence)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Sequence)]
 pub(crate) struct GlobalState {
     pub(crate) age: Age,
     pub(crate) time_of_day: TimeOfDay,
@@ -103,7 +103,16 @@ fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>]) {
     }
 }
 
-pub(crate) fn can_win(worlds: &[()]) -> bool {
+#[derive(Debug, thiserror::Error)]
+pub(crate) enum Error {
+    #[error("at least one world has no access to Hyrule Field as child, which is required to collect Zelda's Lullaby, which is required to beat the Shadow temple")]
+    ChildHyruleFieldAccess(HashMap<Region, HashSet<GlobalState>>),
+    #[error("at least one world has no access to Ganondorf's boss room as adult")]
+    AdultGanondorfBossRoomAccess,
+}
+
+/// Returns an error if the reachability requirements as defined in the settings aren't met.
+pub(crate) fn check_reachability(worlds: &[()]) -> Result<(), Error> {
     // We only consider global states in logic if they're reachable from all other global states.
     // This way, even if a player reaches a global state out of logic, they can't get stuck.
     // To avoid a combinatorial explosion, we require each world to do so without outside help.
@@ -141,10 +150,16 @@ pub(crate) fn can_win(worlds: &[()]) -> bool {
     // Now we start the real search.
     max_explore(&mut region_access);
     // Search completed, check if we can beat the game.
-    region_access.into_iter().all(|world_region_access| {
+    for world_region_access in region_access {
+        //TODO different win conditions, e.g. ALR, no logic, Triforce Hunt, Bingo
         // needs to be child to collect Zelda's Lullaby, which is required to beat the Shadow temple
-        world_region_access.get(&Region::Root).is_some_and(|states| states.iter().any(|state| state.age == Age::Child))
+        if !world_region_access.get(&Region::HyruleField).is_some_and(|states| states.iter().any(|state| state.age == Age::Child)) {
+            return Err(Error::ChildHyruleFieldAccess(world_region_access))
+        }
         // needs to be able to reach Ganon
-        && world_region_access.get(&Region::GanondorfBossRoom).is_some_and(|states| states.iter().any(|state| state.age == Age::Adult)) //TODO check for items required to defeat Ganon (including sword, in preparation for Master Sword shuffle)
-    }) //TODO different win conditions, e.g. ALR, no logic, Triforce Hunt, Bingo
+        if !world_region_access.get(&Region::GanondorfBossRoom).is_some_and(|states| states.iter().any(|state| state.age == Age::Adult)) { //TODO check for items required to defeat Ganon (including sword, in preparation for Master Sword shuffle)
+            return Err(Error::AdultGanondorfBossRoomAccess)
+        }
+    }
+    Ok(())
 }
