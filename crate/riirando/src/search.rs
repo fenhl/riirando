@@ -11,6 +11,7 @@ use {
         Sequence,
         all,
     },
+    enumset::EnumSet,
     itertools::Itertools as _,
     petgraph::matrix_graph::DiMatrix,
     riirando_common::*,
@@ -62,14 +63,21 @@ pub(crate) struct GlobalState {
     //TODO health, FW placement?
 }
 
-fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>]) {
+fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>], inventory: &mut EnumSet<Item>) {
     loop {
         let mut progress_made = false;
         for world_region_access in &mut *region_access {
             for (region, states) in world_region_access.clone() {
-                for (vanilla_target, access) in region.info().exits {
+                let info = region.info();
+                for (item, access) in info.items {
+                    if !inventory.contains(item) && states.iter().any(|state| access(state, inventory)) {
+                        inventory.insert(item);
+                        progress_made = true;
+                    }
+                }
+                for (vanilla_target, access) in info.exits {
                     for state in &states {
-                        if !world_region_access.get(&vanilla_target).is_some_and(|already_reachable_states| already_reachable_states.contains(state)) && access(state) {
+                        if !world_region_access.get(&vanilla_target).is_some_and(|already_reachable_states| already_reachable_states.contains(state)) && access(state, inventory) {
                             let target_info = vanilla_target.info();
                             match target_info.time_of_day {
                                 TimeOfDayBehavior::None => {
@@ -136,7 +144,7 @@ pub(crate) fn check_reachability(worlds: &[()]) -> Result<(), Error> {
                 // check whether the target state is reachable from the source state
                 if assumed_access.is_empty() {
                     assumed_access.insert(Region::Root, collect![from]);
-                    max_explore(std::slice::from_mut(&mut assumed_access));
+                    max_explore(std::slice::from_mut(&mut assumed_access), &mut EnumSet::default());
                 }
                 if assumed_access.get(&Region::Root).is_some_and(|states| states.contains(&to)) {
                     reachability_graph.add_edge(node_indices[from_idx], node_indices[to_idx], ());
@@ -155,7 +163,7 @@ pub(crate) fn check_reachability(worlds: &[()]) -> Result<(), Error> {
         .map(|world_reachable_states| collect![as HashMap<_, _>: Region::Root => world_reachable_states])
         .collect_vec();
     // Now we start the real search.
-    max_explore(&mut region_access);
+    max_explore(&mut region_access, &mut EnumSet::default() /*TODO keep this parameter to check for items required to beat the game */);
     // Search completed, check if we can beat the game.
     for world_region_access in region_access {
         //TODO different win conditions, e.g. ALR, no logic, Triforce Hunt, Bingo

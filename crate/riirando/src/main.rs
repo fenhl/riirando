@@ -1,11 +1,16 @@
 use {
-    std::num::NonZeroU8,
+    std::{
+        num::NonZeroU8,
+        path::PathBuf,
+    },
     crossterm::tty::IsTty as _,
     tokio::io::{
         AsyncReadExt as _,
         stdin,
         stdout,
     },
+    tokio_util::either::Either,
+    wheel::fs::File,
 };
 
 mod logic;
@@ -22,6 +27,9 @@ enum OutputKind {
 
 #[derive(clap::Parser)]
 struct Args {
+    /// Read the base ROM from the given path instead of standard input.
+    #[clap(short, long)]
+    input: Option<PathBuf>,
     #[clap(short = 't', long, value_enum, default_value_t)]
     output_type: OutputKind,
     #[clap(short, long, default_value = "1")]
@@ -34,6 +42,7 @@ struct Args {
 enum Error {
     #[error(transparent)] Io(#[from] tokio::io::Error),
     #[error(transparent)] Search(#[from] search::Error),
+    #[error(transparent)] Wheel(#[from] wheel::Error),
     #[error("standard input is not a valid OoT 1.0 NTSC ROM")]
     BaseRom,
     #[error("specify the world number to output or choose a different output type")]
@@ -46,10 +55,15 @@ enum Error {
 
 #[wheel::main]
 async fn main(args: Args) -> Result<(), Error> {
-    let mut stdin = stdin();
-    if stdin.is_tty() { return Err(Error::Stdin) }
+    let mut input = if let Some(input) = args.input {
+        Either::Left(File::open(input).await?)
+    } else {
+        let stdin = stdin();
+        if stdin.is_tty() { return Err(Error::Stdin) }
+        Either::Right(stdin)
+    };
     let mut input_rom = vec![0; 0x0200_0000];
-    stdin.read_exact(&mut input_rom).await?;
+    input.read_exact(&mut input_rom).await?;
     let crc = &input_rom[0x10..0x18];
     let mut base_rom = vec![0; 0x0400_0000];
     match crc {
@@ -59,7 +73,7 @@ async fn main(args: Args) -> Result<(), Error> {
         }
         [0x93, 0x52, 0x2E, 0x7B, 0xE5, 0x06, 0xD4, 0x27] => { // decompressed
             base_rom[..0x0200_0000].copy_from_slice(&input_rom);
-            stdin.read_exact(&mut base_rom[0x0200_0000..]).await?;
+            input.read_exact(&mut base_rom[0x0200_0000..]).await?;
         }
         [0x44, 0xB0, 0x69, 0xB5, 0x3C, 0x37, 0x85, 0x19] | // PAL (regular compressed)
         [0xB0, 0x44, 0xB5, 0x69, 0x37, 0x3C, 0x19, 0x85] | // PAL (byteswap compressed)

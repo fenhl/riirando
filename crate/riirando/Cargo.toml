@@ -13,6 +13,7 @@ clap = { version = "4.3.11", features = ["derive"] }
 collect-mac = "0.1.0"
 crossterm = "0.27"
 enum-iterator = "2"
+enumset = "1.1.3"
 itertools = "0.12"
 petgraph = { version = "0.6.3", default-features = false, features = ["matrix_graph"] }
 rand = "0.8"
@@ -20,6 +21,7 @@ riirando-common = { path = "../riirando-common" }
 riirando-macros = { path = "../riirando-macros" }
 thiserror = "1"
 tokio = { version = "1", features = ["io-std", "io-util"] }
+tokio-util = "0.7.11"
 wheel = { git = "https://github.com/fenhl/wheel", branch = "main" }
 
 [build-dependencies]

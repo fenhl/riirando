@@ -119,9 +119,12 @@
 
 "Kokiri Forest" {
     time_of_day: Static,
+    items: {
+        KokiriSword: is_child,
+    },
     exits: {
         "KF Links House": true,
-        "Deku Tree": is_child, //TODO require Kokiri Sword and Deku Shield
+        "Deku Tree": is_child && KokiriSword, //TODO require Deku Shield
         "Lost Woods": true,
         "Lost Woods Bridge": true, //TODO require Deku Tree Clear or adult
     },

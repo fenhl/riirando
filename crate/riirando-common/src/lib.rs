@@ -8,6 +8,7 @@ use {
         Sequence,
         all,
     },
+    enumset::EnumSetType,
     proc_macro2::{
         Span,
         TokenStream,
@@ -107,6 +108,29 @@ impl ToTokens for TimeOfDayBehavior {
             Self::Static => quote!(TimeOfDayBehavior::Static),
             Self::Passes => quote!(TimeOfDayBehavior::Passes),
             Self::OutsideGanonsCastle => quote!(TimeOfDayBehavior::OutsideGanonsCastle),
+        };
+        stream.to_tokens(tokens);
+    }
+}
+
+#[derive(Debug, Hash, EnumSetType)]
+pub enum Item {
+    KokiriSword,
+}
+
+impl Parse for Item {
+    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+        Ok(match &*input.parse::<Ident>()?.to_string() {
+            "KokiriSword" => Self::KokiriSword,
+            name => return Err(input.error(format!("expected item, found ident {name}"))),
+        })
+    }
+}
+
+impl ToTokens for Item {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let stream = match self {
+            Self::KokiriSword => quote!(Item::KokiriSword),
         };
         stream.to_tokens(tokens);
     }
