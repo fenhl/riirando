@@ -59,7 +59,7 @@ pub(crate) struct GlobalState {
     pub(crate) age: Age,
     pub(crate) time_of_day: TimeOfDay,
     pub(crate) savewarp: Savewarp,
-    //TODO health
+    //TODO health, FW placement?
 }
 
 fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>]) {

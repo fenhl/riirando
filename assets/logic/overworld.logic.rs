@@ -2,7 +2,12 @@
     time_of_day: None,
     exits: {
         // savewarp exits are hardcoded
-        //TODO warp songs
+        "Temple of Time": true, //TODO can_play(PreludeOfLight)
+        "Sacred Forest Meadow": true, //TODO can_play(MinuetOfForest)
+        "Death Mountain Crater": true, //TODO can_play(BoleroOfFire) //TODO DMC point-to-point logic with health logic
+        "Lake Hylia": true, //TODO can_play(SerenadeOfWater)
+        "Graveyard Warp Pad Region": true, //TODO can_play(NocturneOfShadow)
+        "Desert Colossus": true, //TODO can_play(RequiemOfSpirit)
     },
 }
 
@@ -233,8 +238,15 @@
 "Graveyard" {
     time_of_day: Static,
     exits: {
-        "Kakariko Village": true, //TODO separate exit for Dampé race,
-        "Shadow Temple": true, //TODO separate region for Nocturne warp pad
+        "Kakariko Village": true, //TODO separate exit for Dampé race
+    },
+}
+
+"Graveyard Warp Pad Region" {
+    time_of_day: Static,
+    exits: {
+        "Graveyard": true,
+        "Shadow Temple": true, //TODO item/trick requirements
     },
 }
 
