@@ -105,48 +105,12 @@
     },
 }
 
-"Inside Ganons Castle" {
-    time_of_day: None,
-    exits: {
-        "Castle Grounds": true, //TODO require rainbow bridge, add separate region for castle grounds from Ganon's Castle
-        "Ganons Tower": true, //TODO require trials
-    },
-}
-
-"Ganons Tower" {
-    time_of_day: None,
-    exits: {
-        "Inside Ganons Castle": true,
-        "Ganondorf Boss Room": true, //TODO require Ganon boss key
-    },
-}
-
-"Ganondorf Boss Room" {
-    time_of_day: None,
-}
-
 "Kokiri Forest" {
     time_of_day: Static,
     exits: {
         "Deku Tree": is_child, //TODO require Kokiri Sword and Deku Shield
         "Lost Woods": true,
         "Lost Woods Bridge": true, //TODO require Deku Tree Clear or adult
-    },
-}
-
-"DekuTree" {
-    time_of_day: None,
-    exits: {
-        "Kokiri Forest": true, //TODO separate region for Kokiri Forest near Deku Tree
-        "Queen Gohma Boss Room": true, //TODO required items
-    },
-}
-
-"Queen Gohma Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Deku Tree": true,
-        "Kokiri Forest": true, //TODO items required to defeat Gohma, separate region for Kokiri Forest near Deku Tree
     },
 }
 
@@ -176,22 +140,6 @@
     },
 }
 
-"Forest Temple" {
-    time_of_day: None,
-    exits: {
-        "Sacred Forest Meadow": true,
-        "Phantom Ganon Boss Room": true, //TODO
-    },
-}
-
-"Phantom Ganon Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Forest Temple": false,
-        "Sacred Forest Meadow": true, //TODO item requirements, patch exit in ER
-    },
-}
-
 "Death Mountain Trail" {
     time_of_day: Passes,
     exits: {
@@ -199,22 +147,6 @@
         "Dodongos Cavern": true, //TODO item requirements for child access
         "Goron City": true,
         "Death Mountain Crater": true, //TODO DMC point-to-point logic with health logic
-    },
-}
-
-"Dodongos Cavern" {
-    time_of_day: None,
-    exits: {
-        "Death Mountain Trail": true,
-        "King Dodongo Boss Room": true, //TODO item requirements
-    },
-}
-
-"King Dodongo Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Dodongos Cavern": true,
-        "Death Mountain Trail": true, //TODO item requirements
     },
 }
 
@@ -233,22 +165,6 @@
         "Goron City": true,
         "Death Mountain Trail": true,
         "Fire Temple": is_adult,
-    },
-}
-
-"Fire Temple" {
-    time_of_day: None,
-    exits: {
-        "Death Mountain Crater": true, //TODO DMC point-to-point logic with health logic
-        "Volvagia Boss Room": true, //TODO item requirements
-    },
-}
-
-"Volvagia Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Fire Temple": false,
-        "Death Mountain Crater": true, //TODO item requirements, DMC point-to-point logic with health logic
     },
 }
 
@@ -279,51 +195,12 @@
     },
 }
 
-"Jabu Jabus Belly" {
-    time_of_day: None,
-    exits: {
-        "Zoras Fountain": true,
-        "Barinade Boss Room": true, //TODO item requirements
-    },
-}
-
-"Barinade Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Jabu Jabus Belly": false,
-        "Zoras Fountain": is_child, //TODO item requirements
-    },
-}
-
-"Ice Cavern" {
-    time_of_day: None,
-    exits: {
-        "Zoras Fountain": true,
-    },
-}
-
 "Lake Hylia" {
     time_of_day: Passes,
     exits: {
         "Hyrule Field": true, //TODO separate exit for the owl
         "Zoras Domain": is_child, //TODO item requirements
         "Water Temple": is_adult, //TODO item/setting requirements, add water level toggle
-    },
-}
-
-"Water Temple" {
-    time_of_day: None,
-    exits: {
-        "Lake Hylia": true,
-        "Morpha Boss Room": is_adult, //TODO item requirements
-    },
-}
-
-"Morpha Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Water Temple": false,
-        "Lake Hylia": true, //TODO item/trick requirements
     },
 }
 
@@ -337,34 +214,11 @@
     },
 }
 
-"Bottom of the Well" {
-    time_of_day: None,
-    exits: {
-        "Kakariko Village": true,
-    },
-}
-
 "Graveyard" {
     time_of_day: Static,
     exits: {
         "Kakariko Village": true, //TODO separate exit for Dampé race,
         "Shadow Temple": true, //TODO separate region for Nocturne warp pad
-    },
-}
-
-"Shadow Temple" {
-    time_of_day: None,
-    exits: {
-        "Graveyard": true,
-        "Bongo Bongo Boss Room": is_adult, //TODO item requirements
-    },
-}
-
-"Bongo Bongo Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Shadow Temple": false,
-        "Graveyard": true, //TODO item requirements, separate region for Nocturne warp pad
     },
 }
 
@@ -394,13 +248,6 @@
     },
 }
 
-"Gerudo Training Ground" {
-    time_of_day: None,
-    exits: {
-        "Gerudo Fortress": true,
-    },
-}
-
 "Haunted Wasteland" {
     time_of_day: Static,
     exits: {
@@ -414,21 +261,5 @@
     exits: {
         "Haunted Wasteland": true,
         "Spirit Temple": true,
-    },
-}
-
-"Spirit Temple" {
-    time_of_day: None,
-    exits: {
-        "Desert Colossus": true, //TODO separate exits for Requiem check exit and hands
-        "Twinrova Boss Room": is_adult, //TODO item requirements
-    },
-}
-
-"Twinrova Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Spirit Temple": false,
-        "Desert Colossus": is_adult, //TODO item requirements
     },
 }
