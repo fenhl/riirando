@@ -1,7 +1,7 @@
 use {
     std::collections::HashMap,
     collect_mac::collect,
-    riirando_common::TimeOfDayBehavior,
+    riirando_common::*,
     crate::search::{
         Age,
         GlobalState,
@@ -12,6 +12,7 @@ use {
 type Access = fn(&GlobalState) -> bool;
 
 pub(crate) struct RegionInfo {
+    pub(crate) savewarp: Savewarp,
     pub(crate) time_of_day: TimeOfDayBehavior,
     pub(crate) exits: HashMap<Region, Access>,
 }

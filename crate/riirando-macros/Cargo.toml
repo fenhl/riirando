@@ -12,6 +12,7 @@ proc-macro = true
 
 [dependencies]
 convert_case = "0.6.0"
+enum-iterator = "2.1.0"
 proc-macro2 = "1.0.85"
 quote = "1.0.36"
 riirando-common = { path = "../riirando-common" }

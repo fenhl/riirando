@@ -8,6 +8,9 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
+convert_case = "0.6.0"
+derive_more = { version = "0.99.17", default-features = false, features = ["display"] }
+enum-iterator = "2.1.0"
 proc-macro2 = "1.0.85"
 quote = "1.0.36"
 syn = "2.0.66"

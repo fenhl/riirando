@@ -1,17 +1,81 @@
 use {
-    proc_macro2::TokenStream,
+    convert_case::{
+        Case,
+        Casing as _,
+    },
+    derive_more::Display,
+    enum_iterator::{
+        Sequence,
+        all,
+    },
+    proc_macro2::{
+        Span,
+        TokenStream,
+    },
     quote::{
         ToTokens,
         quote,
     },
     syn::{
         Ident,
+        LitStr,
         parse::{
             Parse,
             ParseStream,
         },
     },
 };
+
+#[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Hash, Sequence)]
+pub enum Savewarp {
+    Overworld,
+    DekuTree,
+    DodongosCavern,
+    JabuJabusBelly,
+    ForestTemple,
+    FireTemple,
+    WaterTemple,
+    ShadowTemple,
+    SpiritTemple,
+    IceCavern,
+    BottomOfTheWell,
+    GerudoTrainingGround,
+    InsideGanonsCastle,
+    // Currently we assume that the name of the savewarp is equal to the name of its target region.
+    // Once boss ER is implemented, this is something that needs to change, so a boss's savewarp can be separate from its vanilla dungeon's.
+    /*
+    QueenGohmaBossRoom,
+    KingDodongoBossRoom,
+    BarinadeBossRoom,
+    PhantomGanonBossRoom,
+    VolvagiaBossRoom,
+    MorphaBossRoom,
+    BongoBongoBossRoom,
+    TwinrovaBossRoom,
+    */
+    GanonsTower,
+    KfLinksHouse,
+    ThievesHideout,
+}
+
+impl Parse for Savewarp {
+    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+        let name = input.parse::<LitStr>()?.value().to_case(Case::Pascal);
+        for variant in all::<Self>() {
+            if name == variant.to_string() {
+                return Ok(variant)
+            }
+        }
+        Err(input.error(format!("expected savewarp, found string literal {name:?}")))
+    }
+}
+
+impl ToTokens for Savewarp {
+    fn to_tokens(&self, tokens: &mut TokenStream) {
+        let ident = Ident::new(&self.to_string(), Span::call_site());
+        quote!(Savewarp::#ident).to_tokens(tokens);
+    }
+}
 
 pub enum TimeOfDayBehavior {
     /// Cannot alter time of day in this region. Used for dungeons as well as helper regions like Root.

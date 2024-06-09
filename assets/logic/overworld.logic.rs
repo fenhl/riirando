@@ -1,9 +1,16 @@
 "Root" {
     time_of_day: None,
     exits: {
-        "Kokiri Forest": is_child, //TODO check current savewarp (global state)
-        "Temple of Time": is_adult, //TODO check current savewarp (global state)
-        //TODO warp songs, dungeon savewarps
+        // savewarp exits are hardcoded
+        //TODO warp songs
+    },
+}
+
+"Overworld" {
+    time_of_day: None,
+    exits: {
+        "KF Links House": is_child,
+        "Temple of Time": is_adult,
     },
 }
 
@@ -84,7 +91,7 @@
 "Castle Grounds" {
     time_of_day: None,
     exits: {
-        "Market": is_child || at_night,
+        "Market": is_child || at_dampe_time,
         "Hyrule Castle": is_child,
         "Outside Ganons Castle": is_adult,
     },
@@ -108,9 +115,18 @@
 "Kokiri Forest" {
     time_of_day: Static,
     exits: {
+        "KF Links House": true,
         "Deku Tree": is_child, //TODO require Kokiri Sword and Deku Shield
         "Lost Woods": true,
         "Lost Woods Bridge": true, //TODO require Deku Tree Clear or adult
+    },
+}
+
+"KF Links House" {
+    savewarp: "KF Links House",
+    time_of_day: Static,
+    exits: {
+        "Kokiri Forest": true,
     },
 }
 
@@ -242,6 +258,7 @@
 }
 
 "Thieves Hideout" {
+    savewarp: "Thieves Hideout",
     time_of_day: Static,
     exits: {
         "Gerudo Fortress": true, //TODO separate regions for the hideout sections

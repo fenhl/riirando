@@ -1,16 +1,5 @@
-"Ganons Tower" {
-    time_of_day: None,
-    exits: {
-        "Inside Ganons Castle": true,
-        "Ganondorf Boss Room": true, //TODO require Ganon boss key
-    },
-}
-
-"Ganondorf Boss Room" {
-    time_of_day: None,
-}
-
 "Queen Gohma Boss Room" {
+    savewarp: "Deku Tree",
     time_of_day: None,
     exits: {
         "Deku Tree": true,
@@ -18,15 +7,8 @@
     },
 }
 
-"Phantom Ganon Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Forest Temple": false,
-        "Sacred Forest Meadow": true, //TODO item requirements, patch exit in ER
-    },
-}
-
 "King Dodongo Boss Room" {
+    savewarp: "Dodongos Cavern",
     time_of_day: None,
     exits: {
         "Dodongos Cavern": true,
@@ -34,15 +16,8 @@
     },
 }
 
-"Volvagia Boss Room" {
-    time_of_day: None,
-    exits: {
-        "Fire Temple": false,
-        "Death Mountain Crater": true, //TODO item requirements, DMC point-to-point logic with health logic
-    },
-}
-
 "Barinade Boss Room" {
+    savewarp: "Jabu Jabus Belly",
     time_of_day: None,
     exits: {
         "Jabu Jabus Belly": false,
@@ -50,7 +25,26 @@
     },
 }
 
+"Phantom Ganon Boss Room" {
+    savewarp: "Forest Temple",
+    time_of_day: None,
+    exits: {
+        "Forest Temple": false,
+        "Sacred Forest Meadow": true, //TODO item requirements, patch exit in ER
+    },
+}
+
+"Volvagia Boss Room" {
+    savewarp: "Fire Temple",
+    time_of_day: None,
+    exits: {
+        "Fire Temple": false,
+        "Death Mountain Crater": true, //TODO item requirements, DMC point-to-point logic with health logic
+    },
+}
+
 "Morpha Boss Room" {
+    savewarp: "Water Temple",
     time_of_day: None,
     exits: {
         "Water Temple": false,
@@ -59,6 +53,7 @@
 }
 
 "Bongo Bongo Boss Room" {
+    savewarp: "Shadow Temple",
     time_of_day: None,
     exits: {
         "Shadow Temple": false,
@@ -67,9 +62,24 @@
 }
 
 "Twinrova Boss Room" {
+    savewarp: "Spirit Temple",
     time_of_day: None,
     exits: {
         "Spirit Temple": false,
         "Desert Colossus": is_adult, //TODO item requirements
     },
+}
+
+"Ganons Tower" {
+    savewarp: "Ganons Tower",
+    time_of_day: None,
+    exits: {
+        "Inside Ganons Castle": true,
+        "Ganondorf Boss Room": true, //TODO require Ganon boss key
+    },
+}
+
+"Ganondorf Boss Room" {
+    savewarp: "Ganons Tower",
+    time_of_day: None,
 }

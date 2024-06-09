@@ -29,12 +29,14 @@ impl Parse for LogicFile {
 }
 
 pub(crate) struct RegionInfo {
+    pub(crate) savewarp: Option<Savewarp>,
     pub(crate) time_of_day: TimeOfDayBehavior,
     pub(crate) exits: HashMap<String, Access>,
 }
 
 impl Parse for RegionInfo {
     fn parse(input: ParseStream<'_>) -> Result<Self> {
+        let mut savewarp = None;
         let mut time_of_day = None;
         let mut exits = None;
         let content;
@@ -42,6 +44,7 @@ impl Parse for RegionInfo {
         let fields = content.parse_terminated(RegionInfoField::parse, Token![,])?;
         for field in fields {
             match field {
+                RegionInfoField::Savewarp(new_savewarp) => if savewarp.replace(new_savewarp).is_some() { return Err(input.error("savewarp specified multiple times")) },
                 RegionInfoField::TimeOfDay(new_time_of_day) => if time_of_day.replace(new_time_of_day).is_some() { return Err(input.error("time_of_day specified multiple times")) },
                 RegionInfoField::Exits(new_exits) => if exits.replace(new_exits).is_some() { return Err(input.error("exits specified multiple times")) },
             }
@@ -49,11 +52,13 @@ impl Parse for RegionInfo {
         Ok(Self {
             time_of_day: time_of_day.ok_or_else(|| input.error("missing time_of_day field in region info"))?,
             exits: exits.unwrap_or_default(),
+            savewarp,
         })
     }
 }
 
 enum RegionInfoField {
+    Savewarp(Savewarp),
     TimeOfDay(TimeOfDayBehavior),
     Exits(HashMap<String, Access>),
 }
@@ -63,6 +68,7 @@ impl Parse for RegionInfoField {
         let field_name = input.parse::<Ident>()?;
         input.parse::<Token![:]>()?;
         Ok(match &*field_name.to_string() {
+            "savewarp" => Self::Savewarp(input.parse()?),
             "time_of_day" => Self::TimeOfDay(input.parse()?),
             "exits" => {
                 let mut exits_map = HashMap::default();

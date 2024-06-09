@@ -13,7 +13,7 @@ use {
     },
     itertools::Itertools as _,
     petgraph::matrix_graph::DiMatrix,
-    riirando_common::TimeOfDayBehavior,
+    riirando_common::*,
     crate::logic::Region,
 };
 
@@ -50,7 +50,7 @@ impl TimeOfDay {
         }
     }
 
-    pub(crate) fn is_night(&self) -> bool { !self.is_day() }
+    //pub(crate) fn is_night(&self) -> bool { !self.is_day() }
 }
 
 /// World state that changes over a seed and is reversible but persists across savewarps.
@@ -58,7 +58,8 @@ impl TimeOfDay {
 pub(crate) struct GlobalState {
     pub(crate) age: Age,
     pub(crate) time_of_day: TimeOfDay,
-    //TODO spawn position, health
+    pub(crate) savewarp: Savewarp,
+    //TODO health
 }
 
 fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>]) {
@@ -69,20 +70,26 @@ fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>]) {
                 for (vanilla_target, access) in region.info().exits {
                     for state in &states {
                         if !world_region_access.get(&vanilla_target).is_some_and(|already_reachable_states| already_reachable_states.contains(state)) && access(state) {
-                            match vanilla_target.info().time_of_day {
+                            let target_info = vanilla_target.info();
+                            match target_info.time_of_day {
                                 TimeOfDayBehavior::None => {
                                     world_region_access.entry(vanilla_target).or_default().insert(*state);
+                                    world_region_access.entry(Region::Root).or_default().insert(GlobalState { savewarp: target_info.savewarp, ..*state });
                                     if let Region::BeyondDoorOfTime = vanilla_target {
                                         // can time travel here
                                         let age_change = GlobalState { age: !state.age, ..*state };
                                         world_region_access.entry(vanilla_target).or_default().insert(age_change);
-                                        world_region_access.entry(Region::Root).or_default().insert(age_change); // savewarp after age change
+                                        world_region_access.entry(Region::Root).or_default().insert(GlobalState { savewarp: target_info.savewarp, ..age_change });
                                     }
                                 }
-                                TimeOfDayBehavior::Static => { world_region_access.entry(vanilla_target).or_default().insert(*state); } //TODO allow setting time to noon or midnight using Sun's Song
+                                TimeOfDayBehavior::Static => {
+                                    //TODO allow setting time to noon or midnight using Sun's Song
+                                    world_region_access.entry(vanilla_target).or_default().insert(*state);
+                                    world_region_access.entry(Region::Root).or_default().insert(GlobalState { savewarp: target_info.savewarp, ..*state });
+                                }
                                 TimeOfDayBehavior::Passes => for time_of_day in all() {
                                     world_region_access.entry(vanilla_target).or_default().insert(GlobalState { time_of_day, ..*state });
-                                    world_region_access.entry(Region::Root).or_default().insert(GlobalState { time_of_day, ..*state }); // savewarp after waiting for time of day
+                                    world_region_access.entry(Region::Root).or_default().insert(GlobalState { savewarp: target_info.savewarp, time_of_day, ..*state });
                                 },
                                 TimeOfDayBehavior::OutsideGanonsCastle => {
                                     // Time of day outside Ganon's Castle is always Dampé time, but we mark all times of day to avoid an infinite loop from a discrepancy with the check for existing access above.
@@ -90,7 +97,7 @@ fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>]) {
                                     for time_of_day in all() {
                                         world_region_access.entry(vanilla_target).or_default().insert(GlobalState { time_of_day, ..*state });
                                     }
-                                    world_region_access.entry(Region::Root).or_default().insert(GlobalState { time_of_day: TimeOfDay::Dampe, ..*state }); // savewarp after setting time of day
+                                    world_region_access.entry(Region::Root).or_default().insert(GlobalState { savewarp: target_info.savewarp, time_of_day: TimeOfDay::Dampe, ..*state });
                                 }
                             }
                             progress_made = true;
