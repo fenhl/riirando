@@ -11,11 +11,18 @@ use {
         Sequence,
         all,
     },
-    enumset::EnumSet,
+    enumset::{
+        EnumSet,
+        enum_set,
+    },
     itertools::Itertools as _,
     petgraph::matrix_graph::DiMatrix,
     riirando_common::*,
-    crate::logic::Region,
+    crate::logic::{
+        AnonymousEvent,
+        NamedEvent,
+        Region,
+    },
 };
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Sequence)]
@@ -51,7 +58,7 @@ impl TimeOfDay {
         }
     }
 
-    //pub(crate) fn is_night(&self) -> bool { !self.is_day() }
+    pub(crate) fn is_night(&self) -> bool { !self.is_day() }
 }
 
 /// World state that changes over a seed and is reversible but persists across savewarps.
@@ -63,15 +70,83 @@ pub(crate) struct GlobalState {
     //TODO health, FW placement?
 }
 
-fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>], inventory: &mut EnumSet<Item>) {
+pub(crate) trait InventoryContents {
+    fn is_in(self, inventory: &Inventory) -> bool;
+}
+
+impl InventoryContents for Item {
+    fn is_in(self, inventory: &Inventory) -> bool {
+        inventory.base.contains(self)
+    }
+}
+
+impl InventoryContents for EnumSet<Item> {
+    fn is_in(self, inventory: &Inventory) -> bool {
+        inventory.base.is_superset(self)
+    }
+}
+
+impl InventoryContents for (Item, usize) {
+    fn is_in(self, inventory: &Inventory) -> bool {
+        let (item, required_count) = self;
+        match required_count {
+            0 => true,
+            1 => inventory.base.contains(item),
+            _ => inventory.multiples.get(&item).is_some_and(|&found_count| found_count >= required_count),
+        }
+    }
+}
+
+impl InventoryContents for AnonymousEvent {
+    fn is_in(self, inventory: &Inventory) -> bool {
+        inventory.anonymous_events.contains(&self)
+    }
+}
+
+impl InventoryContents for NamedEvent {
+    fn is_in(self, inventory: &Inventory) -> bool {
+        inventory.named_events.contains(self)
+    }
+}
+
+pub(crate) struct Inventory {
+    base: EnumSet<Item>,
+    multiples: HashMap<Item, usize>,
+    anonymous_events: HashSet<AnonymousEvent>,
+    named_events: EnumSet<NamedEvent>,
+}
+
+impl Inventory {
+    fn starting() -> Self {
+        Self {
+            base: enum_set!(Item::Wallet),
+            multiples: HashMap::default(),
+            anonymous_events: HashSet::default(),
+            named_events: EnumSet::default(),
+        }
+    }
+
+    pub(crate) fn contains(&self, item: impl InventoryContents) -> bool {
+        item.is_in(self)
+    }
+
+    fn collect(&mut self, item: Item) {
+        if !self.base.insert(item) {
+            //TODO only track multiples where relevant
+            *self.multiples.entry(item).or_insert(1) += 1;
+        }
+    }
+}
+
+fn max_explore(region_access: &mut [HashMap<Region, HashSet<GlobalState>>], inventory: &mut Inventory) {
     loop {
         let mut progress_made = false;
         for world_region_access in &mut *region_access {
             for (region, states) in world_region_access.clone() {
                 let info = region.info();
-                for (item, access) in info.items {
-                    if !inventory.contains(item) && states.iter().any(|state| access(state, inventory)) {
-                        inventory.insert(item);
+                for (item, accesses) in info.items {
+                    if !inventory.contains(item) /*TODO track by locations to allow collecting multiples */ && states.iter().any(|state| accesses.iter().any(|access| access(state, inventory))) { //TODO track multiple instances of items when relevant
+                        inventory.collect(item);
                         progress_made = true;
                     }
                 }
@@ -134,24 +209,25 @@ pub(crate) fn check_reachability(worlds: &[()]) -> Result<(), Error> {
     let reachable_states = worlds.into_iter().map(|()| {
         let mut reachability_graph = DiMatrix::<_, _>::with_capacity(GlobalState::CARDINALITY);
         let node_indices = all::<GlobalState>().map(|state| reachability_graph.add_node(state)).collect_vec();
+        let mut dfs_space = petgraph::algo::DfsSpace::new(&reachability_graph);
         for (from_idx, from) in all::<GlobalState>().enumerate() {
             let mut assumed_access = HashMap::default();
             for (to_idx, to) in all().enumerate() {
-                if petgraph::algo::has_path_connecting(&reachability_graph, node_indices[from_idx], node_indices[to_idx], None) {
+                if petgraph::algo::has_path_connecting(&reachability_graph, node_indices[from_idx], node_indices[to_idx], Some(&mut dfs_space)) {
                     // already known to be transitively reachable, don't need to check for direct reachability
                     continue
                 }
                 // check whether the target state is reachable from the source state
                 if assumed_access.is_empty() {
                     assumed_access.insert(Region::Root, collect![from]);
-                    max_explore(std::slice::from_mut(&mut assumed_access), &mut EnumSet::default());
+                    max_explore(std::slice::from_mut(&mut assumed_access), &mut Inventory::starting());
                 }
                 if assumed_access.get(&Region::Root).is_some_and(|states| states.contains(&to)) {
                     reachability_graph.add_edge(node_indices[from_idx], node_indices[to_idx], ());
+                    dfs_space = petgraph::algo::DfsSpace::new(&reachability_graph);
                 }
             }
         }
-        let mut dfs_space = petgraph::algo::DfsSpace::new(&reachability_graph);
         all::<GlobalState>()
             .enumerate()
             .filter(|&(to_idx, _)| node_indices.iter().all(|&from_idx| petgraph::algo::has_path_connecting(&reachability_graph, from_idx, node_indices[to_idx], Some(&mut dfs_space))))
@@ -163,7 +239,7 @@ pub(crate) fn check_reachability(worlds: &[()]) -> Result<(), Error> {
         .map(|world_reachable_states| collect![as HashMap<_, _>: Region::Root => world_reachable_states])
         .collect_vec();
     // Now we start the real search.
-    max_explore(&mut region_access, &mut EnumSet::default() /*TODO keep this parameter to check for items required to beat the game */);
+    max_explore(&mut region_access, &mut Inventory::starting() /*TODO keep this parameter to check for items required to beat the game */);
     // Search completed, check if we can beat the game.
     for world_region_access in region_access {
         //TODO different win conditions, e.g. ALR, no logic, Triforce Hunt, Bingo

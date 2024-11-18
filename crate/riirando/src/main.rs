@@ -23,6 +23,7 @@ enum OutputKind {
     Patch,
     #[default]
     UncompressedRom,
+    //TODO support generating compressed roms
 }
 
 #[derive(clap::Parser)]
@@ -69,7 +70,7 @@ async fn main(args: Args) -> Result<(), Error> {
     match crc {
         [0xEC, 0x70, 0x11, 0xB7, 0x76, 0x16, 0xD7, 0x2B] | // regular compressed
         [0x70, 0xEC, 0xB7, 0x11, 0x16, 0x76, 0x2B, 0xD7] => { // byteswap compressed
-            unimplemented!() //TODO (compression isn't simply yaz0)
+            unimplemented!("decompress input rom") //TODO (compression isn't simply yaz0)
         }
         [0x93, 0x52, 0x2E, 0x7B, 0xE5, 0x06, 0xD4, 0x27] => { // decompressed
             base_rom[..0x0200_0000].copy_from_slice(&input_rom);
@@ -93,7 +94,7 @@ async fn main(args: Args) -> Result<(), Error> {
     } else {
         match args.output_type {
             OutputKind::None => {}
-            OutputKind::Patch => unimplemented!(), //TODO write zpfz
+            OutputKind::Patch => unimplemented!("write zpfz"), //TODO
             OutputKind::UncompressedRom => return Err(Error::MultipleOutputs), //TODO output zip archive of roms?
         }
     }

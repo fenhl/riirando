@@ -113,25 +113,84 @@ impl ToTokens for TimeOfDayBehavior {
     }
 }
 
-#[derive(Debug, Hash, EnumSetType)]
-pub enum Item {
+macro_rules! items {
+    ($($variant:ident,)*) => {
+        #[derive(Debug, Hash, EnumSetType)]
+        pub enum Item {
+            $(
+                $variant,
+            )*
+        }
+
+        impl Parse for Item {
+            fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
+                Ok(match &*input.parse::<Ident>()?.to_string() {
+                    $(
+                        stringify!($variant) => Self::$variant,
+                    )*
+                    name => return Err(input.error(format!("expected item, found ident {name}"))),
+                })
+            }
+        }
+
+        impl ToTokens for Item {
+            fn to_tokens(&self, tokens: &mut TokenStream) {
+                let stream = match self {
+                    $(
+                        Self::$variant => quote!(Item::$variant),
+                    )*
+                };
+                stream.to_tokens(tokens);
+            }
+        }
+    };
+}
+
+items! {
+    Arrows,
+    BoleroOfFire,
+    BombBag,
+    Bombs,
+    Boomerang,
+    Bottle,
+    Bugs,
+    Cojiro,
+    DekuNuts,
+    DekuSeeds,
+    DekuShield,
+    DekuSticks,
+    DinsFire,
+    EponasSong,
+    GoldSkulltulaToken,
+    Hookshot,
+    HoverBoots,
     KokiriSword,
-}
-
-impl Parse for Item {
-    fn parse(input: ParseStream<'_>) -> syn::Result<Self> {
-        Ok(match &*input.parse::<Ident>()?.to_string() {
-            "KokiriSword" => Self::KokiriSword,
-            name => return Err(input.error(format!("expected item, found ident {name}"))),
-        })
-    }
-}
-
-impl ToTokens for Item {
-    fn to_tokens(&self, tokens: &mut TokenStream) {
-        let stream = match self {
-            Self::KokiriSword => quote!(Item::KokiriSword),
-        };
-        stream.to_tokens(tokens);
-    }
+    MagicBean,
+    MagicMeter,
+    MagicRefills,
+    MinuetOfForest,
+    NocturneOfShadow,
+    Ocarina,
+    OcarinaAButton,
+    OcarinaCDownButton,
+    OcarinaCLeftButton,
+    OcarinaCRightButton,
+    OcarinaCUpButton,
+    OddMushroom,
+    OddPotion,
+    PieceOfHeart,
+    PoachersSaw,
+    PreludeOfLight,
+    RecoveryHearts,
+    RequiemOfSpirit,
+    SariasSong,
+    Scale,
+    SerenadeOfWater,
+    Slingshot,
+    SongOfStorms,
+    SongOfTime,
+    StoneOfAgony,
+    SunsSong,
+    Wallet,
+    ZeldasLullaby,
 }

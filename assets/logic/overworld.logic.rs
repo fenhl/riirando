@@ -2,12 +2,12 @@
     time_of_day: None,
     exits: {
         // savewarp exits are hardcoded
-        "Temple of Time": true, //TODO can_play(PreludeOfLight)
-        "Sacred Forest Meadow": true, //TODO can_play(MinuetOfForest)
-        "Death Mountain Crater": true, //TODO can_play(BoleroOfFire) //TODO DMC point-to-point logic with health logic
-        "Lake Hylia": true, //TODO can_play(SerenadeOfWater)
-        "Graveyard Warp Pad Region": true, //TODO can_play(NocturneOfShadow)
-        "Desert Colossus": true, //TODO can_play(RequiemOfSpirit)
+        "Temple of Time": PreludeOfLight,
+        "Sacred Forest Meadow": MinuetOfForest,
+        "Death Mountain Crater": BoleroOfFire, //TODO DMC point-to-point logic with health logic
+        "Lake Hylia": SerenadeOfWater,
+        "Graveyard Warp Pad Region": NocturneOfShadow,
+        "Desert Colossus": RequiemOfSpirit,
     },
 }
 
@@ -29,7 +29,7 @@
         "Market Entrance": true,
         "Kakariko Village": true,
         "Zora River": true,
-        "Lost Woods Bridge": true,
+        "LW Bridge": true,
         "Lake Hylia": true,
         "Gerudo Valley": true,
     },
@@ -121,12 +121,34 @@
     time_of_day: Static,
     items: {
         KokiriSword: is_child,
+        GoldSkulltulaToken: is_child && can_child_attack && at_night, // KF GS Know It All House //TODO access via starting ToD in Require Gohma?
+        GoldSkulltulaToken: Bugs && can_child_attack, // KF GS Bean Patch
+        GoldSkulltulaToken: is_adult && at_night && Hookshot, // KF GS House of Twins
     },
     exits: {
         "KF Links House": true,
-        "Deku Tree": is_child && KokiriSword, //TODO require Deku Shield
+        "KF Midos House": true,
+        "KF Sarias House": true,
+        "KF House of Twins": true,
+        "KF Know It All House": true,
+        "KF Shop": true,
+        "KF Outside Deku Tree": is_adult || (KokiriSword && DekuShield), //TODO access with open Deku, turn sword/shield access into event for dungeon ER
         "Lost Woods": true,
-        "Lost Woods Bridge": true, //TODO require Deku Tree Clear or adult
+        "LW Bridge From Forest": is_adult || "Deku Tree Clear",
+        "KF Storms Grotto": can_open_storm_grotto,
+    },
+}
+
+"KF Outside Deku Tree" {
+    time_of_day: Static,
+    items: {
+        // The Babas despawn for Adult on forest temple completion. The original implementation keeps them in logic when entrance rando is off, but this doesn't seem to be safe with the shortcut enabled.
+        //TODO implement this fix? https://discord.com/channels/274180765816848384/759842532963385354/1249325077351104615
+        DekuSticks: KokiriSword || Boomerang,
+    },
+    exits: {
+        "Deku Tree Lobby": is_child, //TODO open as adult with dungeon ER
+        "Kokiri Forest": is_adult || (KokiriSword && DekuShield), //TODO access with open Deku, turn sword/shield access into event
     },
 }
 
@@ -138,16 +160,70 @@
     },
 }
 
-"Lost Woods" {
+"KF Midos House" {
     time_of_day: Static,
     exits: {
         "Kokiri Forest": true,
-        "Lost Woods Bridge": is_adult, //TODO item requirements
+    },
+}
+
+"KF Sarias House" {
+    time_of_day: Static,
+    exits: {
+        "Kokiri Forest": true,
+    },
+}
+
+"KF House of Twins" {
+    time_of_day: Static,
+    exits: {
+        "Kokiri Forest": true,
+    },
+}
+
+"KF Know It All House" {
+    time_of_day: Static,
+    exits: {
+        "Kokiri Forest": true,
+    },
+}
+
+"KF Shop" {
+    time_of_day: Static,
+    items: {
+        DekuShield: can_pay(40),
+        DekuNuts: can_pay(15),
+        DekuSticks: can_pay(10),
+        DekuSeeds: can_pay(30),
+        Arrows: can_pay(20),
+        RecoveryHearts: can_pay(10),
+    },
+    exits: {
+        "Kokiri Forest": true,
+    },
+}
+
+"Lost Woods" {
+    time_of_day: Static,
+    items: {
+        PieceOfHeart: is_child && SariasSong, // LW Skull Kid
+        OddMushroom: Cojiro, //TODO disable trade timers/reverts with relevant ER settings
+        PoachersSaw: OddPotion, //TODO disable trade timers/reverts with relevant ER settings
+        PieceOfHeart: is_child && Ocarina && OcarinaAButton && OcarinaCDownButton && OcarinaCRightButton && OcarinaCLeftButton && OcarinaCUpButton, // LW Ocarina Memory Game
+        Slingshot: Slingshot,
+        GoldSkulltulaToken: Bugs && can_child_attack, // LW GS Bean Patch Near Bridge
+        Bugs: is_child && can_cut_shrubs && Bottle,
+    },
+    exits: {
+        "Kokiri Forest": true,
+        "GC Woods Warp": true,
+        "LW Bridge": is_adult && (HoverBoots || Longshot || here(can_plant_bean)),
+        "LW Underwater Entrance": is_child && (can_dive || Boomerang),
         "Sacred Forest Meadow": true, //TODO item requirements for adult
     },
 }
 
-"Lost Woods Bridge" {
+"LW Bridge" {
     time_of_day: Static,
     exits: {
         "Hyrule Field": true,

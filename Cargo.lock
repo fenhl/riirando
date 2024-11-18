@@ -126,7 +126,7 @@ version = "0.21.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "89a3fc10570dc620f131b63b5ff48c02e70950791fa8cacca2b49c8f3aa2d52c"
 dependencies = [
- "itertools",
+ "itertools 0.12.1",
  "proc-macro2",
  "quote",
  "syn 2.0.66",
@@ -864,6 +864,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "if_chain"
+version = "1.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "cb56e1aa765b4b4f3aadfab769793b7087bb03a4ea4920644a6d238e2df5b9ed"
+
+[[package]]
 name = "indexmap"
 version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -894,6 +900,15 @@ name = "itertools"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ba291022dbbd398a455acf126c1e341954079855bc60dfdda641363bd6922569"
+dependencies = [
+ "either",
+]
+
+[[package]]
+name = "itertools"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "413ee7dfc52ee1a4949ceeb7dbc8a33f2d6c088194d9f922fb8318faf1f01186"
 dependencies = [
  "either",
 ]
@@ -1121,7 +1136,7 @@ dependencies = [
  "directories",
  "enum-iterator",
  "git2",
- "itertools",
+ "itertools 0.12.1",
  "lazy-regex",
  "semver",
  "serde",
@@ -1266,7 +1281,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9554e3ab233f0a932403704f1a1d08c30d5ccd931adfdfa1e8b5a19b52c1d55a"
 dependencies = [
  "anyhow",
- "itertools",
+ "itertools 0.12.1",
  "proc-macro2",
  "quote",
  "syn 2.0.66",
@@ -1394,7 +1409,7 @@ dependencies = [
  "crossterm",
  "enum-iterator",
  "enumset",
- "itertools",
+ "itertools 0.12.1",
  "petgraph",
  "rand",
  "riirando-common",
@@ -1438,6 +1453,8 @@ version = "0.1.0"
 dependencies = [
  "convert_case",
  "enum-iterator",
+ "if_chain",
+ "itertools 0.13.0",
  "proc-macro2",
  "quote",
  "riirando-common",
@@ -1968,7 +1985,7 @@ dependencies = [
  "clap",
  "console-subscriber",
  "futures",
- "itertools",
+ "itertools 0.12.1",
  "thiserror",
  "tokio",
  "wheel-derive",
@@ -1979,7 +1996,7 @@ name = "wheel-derive"
 version = "0.14.0"
 source = "git+https://github.com/fenhl/wheel?branch=main#ef30521c09cb76e4b8fd7f5511f4e99b85778eb3"
 dependencies = [
- "itertools",
+ "itertools 0.12.1",
  "proc-macro2",
  "quote",
  "syn 2.0.66",
