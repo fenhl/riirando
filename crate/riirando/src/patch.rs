@@ -8,7 +8,10 @@ use {
         },
     },
     async_compression::tokio::write::ZlibEncoder,
-    rand::prelude::*,
+    rand::{
+        prelude::*,
+        rng,
+    },
     itertools::Itertools as _,
     tokio::io::{
         self,
@@ -154,7 +157,7 @@ impl<'a> Patch<'a> {
         zpf_buf.write_u32(DMADATA_START).await?;
         zpf_buf.write_u32(XOR_RANGE.start.try_into().expect("address out of range")).await?;
         zpf_buf.write_u32(XOR_RANGE.end.try_into().expect("address out of range")).await?;
-        let mut xor_address = thread_rng().gen_range(XOR_RANGE);
+        let mut xor_address = rng().random_range(XOR_RANGE);
         zpf_buf.write_u32(xor_address.try_into().expect("address out of range")).await?;
         // DMA updates (none currently)
         zpf_buf.write_u16(0xffff).await?;

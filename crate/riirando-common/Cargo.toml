@@ -8,8 +8,8 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
-convert_case = "0.6.0"
-derive_more = { version = "0.99.17", default-features = false, features = ["display"] }
+convert_case = "0.8"
+derive_more = { version = "2", features = ["display"] }
 enum-iterator = "2.1.0"
 enumset = "1.1.3"
 proc-macro2 = "1.0.85"

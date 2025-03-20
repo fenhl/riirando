@@ -35,7 +35,7 @@ fn format_segment(start_address: usize, data: Vec<u8>) -> String {
 #[derive(Debug, thiserror::Error)]
 enum Error {
     #[error(transparent)] Wheel(#[from] wheel::Error),
-    #[error("assets/base.n64 should be 0x4000000 bytes (64 MiB), but yours is {0:#x} bytes ({} MiB). Make sure you have an uncompressed base ROM (use bin/Decompress from OoTR to decompress one).", .0 / 1024_u64.pow(2))]
+    #[error("assets/base.n64 should be 0x4000000 bytes (64 MiB), but yours is {:#x} bytes ({} MiB). Make sure you have an uncompressed base ROM (use bin/Decompress from OoTR to decompress one).", .0, .0 / 1024_u64.pow(2))]
     BaseRomSize(u64),
 }
 

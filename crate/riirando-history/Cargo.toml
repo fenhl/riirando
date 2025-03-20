@@ -8,11 +8,11 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
-git2 = "0.18.3"
+git2 = "0.20"
 lazy-regex = "3.1.0"
 ootr-utils = { git = "https://github.com/midoshouse/rust-ootr-utils", branch = "main" }
 semver = { version = "1.0.22", features = ["serde"] }
 serde = { version = "1.0.203", features = ["derive"] }
-thiserror = "1"
+thiserror = "2"
 toml = { version = "0.8.14", default-features = false, features = ["parse"] }
 wheel = { git = "https://github.com/fenhl/wheel", branch = "main" }
