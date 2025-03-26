@@ -12,6 +12,7 @@ async-compression = { version = "0.4", features = ["tokio", "zlib"] }
 clap = { version = "4.3.11", features = ["derive"] }
 collect-mac = "0.1.0"
 crossterm = "0.28"
+decompress = { git = "https://github.com/fenhl/OoT_Decompressor.git", branch = "riir" }
 enum-iterator = "2"
 enumset = "1.1.3"
 itertools = "0.14"
