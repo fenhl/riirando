@@ -12,7 +12,7 @@ PATCH_PATH = GENERATED_DIR / 'default.zpf'
 UNCOMPRESSED_OUTPUT_PATH = GENERATED_DIR / 'default.n64'
 COMPRESSED_OUTPUT_PATH = GENERATED_DIR / 'default.z64'
 OOT_DIR = pathlib.Path.home() / 'games' / 'zelda' / 'oot'
-BASE_ROM_PATH = OOT_DIR / 'oot-ntscu-1.0.n64' #TODO test with compressed base rom
+BASE_ROM_PATH = OOT_DIR / 'oot-ntscu-1.0.z64'
 PY_REPO_DIR = pathlib.Path.home() / 'git' / 'github.com' / 'OoTRandomizer' / 'OoT-Randomizer' / 'main'
 
 GENERATED_DIR.mkdir(parents=True, exist_ok=True)
